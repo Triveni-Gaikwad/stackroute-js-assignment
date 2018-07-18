@@ -1,0 +1,19 @@
+{
+  "collections": [
+    {
+      "name": "aaa",
+      "movies": [],
+      "id": 1
+    },
+    {
+      "name": "bbb",
+      "movies": [],
+      "id": 2
+    },
+    {
+      "name": "ccc",
+      "movies": [],
+      "id": 3
+    }
+  ]
+}

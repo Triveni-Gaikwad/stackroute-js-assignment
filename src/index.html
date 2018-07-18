@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover">
+  <title>Movie App</title>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark primary-color">
+    <a class="navbar-brand" href="#">Movie App</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#basicExampleNav" aria-controls="basicExampleNav"
+      aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="basicExampleNav">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="index.html">Home
+            <span class="sr-only">(current)</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <div class="container mt-4">
+    <div class="md-form input-group mb-0">
+      <input type="text" id="searchKeyword" class="form-control" placeholder="Search Movies...." aria-label="Search Movies...."
+        aria-describedby="basic-addon2">
+      <div class="input-group-append">
+        <button class="btn btn-unique waves-effect m-0" onclick="submitSearch()" type="button">GO</button>
+      </div>
+    </div>
+    <div class="text-danger" id="searchError"></div>
+  </div>
+  <div class="container mb-5">
+    <div class="modal fade" id="createCollection" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header text-center">
+            <h4 class="modal-title w-100 font-weight-bold">Create Collection</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body mx-3">
+            <div class="md-form mb-5">
+              <input type="text" id="collectionName" placeholder="Enter Collection Name" class="form-control">
+              <div class="text-danger" id="collectionError"></div>
+            </div>
+          </div>
+          <div class="modal-footer d-flex justify-content-center">
+            <button onclick="createCollection()" class="btn btn-default">Create</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="myCollection" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header text-center">
+            <h4 class="modal-title w-100 font-weight-bold">My Collection</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body mx-3">
+            <ul id="myCollectionList" class="list-group">
+
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="movieModal" tabindex="-1" role="dialog" aria-labelledby="movieModal" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header text-center">
+            <h4 class="modal-title w-100 font-weight-bold" id="movieTitle">Movie Title</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body mx-0">
+            <div id="movieDetails">
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-right">
+      <a href="" onclick="loadCollections()" class="btn btn-default btn-sm btn-rounded mt-3" data-toggle="modal" data-target="#myCollection">My Collections</a>
+      <a href="" class="btn btn-default btn-sm btn-rounded mt-3" data-toggle="modal" data-target="#createCollection">Create Collection</a>
+    </div>
+    <div id="searchResults"></div>
+    <div id="pagination"></div>
+    <div id="popularResults"></div>
+    <div id="collectionResults"></div>
+  </div>
+  <script>
+    var key = "289e84f4fe34381b97017830c61a59c7";
+    function getData(queryString, numResults, searchKeyword) {
+      var xhttp = new XMLHttpRequest();
+      var link, divID = "";
+      if (queryString == "popular") {
+        link = "https://api.themoviedb.org/3/discover/movie?language=en-US&sort_by=popularity.desc&api_key=" + key;
+        divID = "popularResults"
+      } else if (queryString === "search") {
+        link = "https://api.themoviedb.org/3/search/movie?language=en-US&include_adult=false&query=" + searchKeyword + "&api_key=" + key;
+        divID = "searchResults"
+      }
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          var fetchedData = JSON.parse(this.responseText);
+          showData(fetchedData, numResults, divID);
+        }
+      };
+
+      xhttp.open("GET", link, true);
+      xhttp.send();
+    }
+
+    function showData(data, numResults, divID) {
+      var displayHTML = "<div class='card mt-3'><div class='card-header deep-orange lighten-1 py-2 px-2 white-text'>";
+      //pagination only for search results
+      // var numOfPages = data.total_pages;
+      // var currentPage = data.page;
+      // if(numOfPages > 1) {
+      //   pagination(numOfPages, currentPage);
+      // }
+      if (divID == "popularResults") {
+        displayHTML += "Popular Movies";
+      } else if (divID == "searchResults") {
+        displayHTML += "Search Results";
+      }
+
+      displayHTML += "</div><div class='card-body px-2 pt-2 pb-0'><div class='row'>";
+      var numResults = numResults;
+      var totalResults = data.results.length;
+      if (numResults >= totalResults || numResults == "all") {
+        numResults = totalResults;
+      }
+      for (i = 0; i < numResults; i++) {
+        var img = data.results[i].poster_path;
+        var imgPath = "";
+        if (img == null) {
+          imgPath = "http://via.placeholder.com/300x450/cccccc/000000?text=No%20Picture";
+        } else {
+          imgPath = "https://image.tmdb.org/t/p/w300/" + img;
+        }
+        displayHTML += "<div class='col-md-3 mb-2 col-lg-3'><div class='card'>" +
+          "<div class='view overlay'><img class='card-img-top' src='https://image.tmdb.org/t/p/w300/" + img + "' alt='" + data.results[i].title + "'><a href='' data-toggle='modal' data-target='#movieModal' onclick=openMovie(" + data.results[i].id + ")><div class='mask rgba-white-slight'></div></a></div>" +
+          "<div class='card-body px-2 py-2'><h6 class='card-title ellipsis-text mb-0' title='" + data.results[i].original_title + "'>" + data.results[i].original_title + "</h6></div>" +
+          "</div></div>";
+      }
+
+      if (totalResults == 0) {
+        displayHTML += "<div class='col-12'>No results found..</div>";
+      }
+      displayHTML += "</div></div></div>";
+      document.getElementById(divID).innerHTML = displayHTML;
+    }
+    getData("popular", 8);
+
+
+    //search functionality
+    function submitSearch() {
+      var searchKeyword = document.getElementById("searchKeyword").value;
+      if (searchKeyword === "") {
+        document.getElementById("searchError").innerHTML = "Please enter keyword to search.";
+        document.getElementById("searchResults").innerHTML = "";
+      } else {
+        document.getElementById("searchError").innerHTML = "";
+        getData("search", "all", searchKeyword);
+      }
+    }
+
+    function openMovie(movieId) {
+      var url = "https://api.themoviedb.org/3/movie/" + movieId + "?api_key=289e84f4fe34381b97017830c61a59c7"
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          var data = JSON.parse(this.responseText);
+          var img = data.poster_path;
+          var imgPath = "";
+          if (img == null) {
+            imgPath = "http://via.placeholder.com/300x450/cccccc/000000?text=No%20Picture";
+          } else {
+            imgPath = "https://image.tmdb.org/t/p/w300/" + img;
+          }
+          document.getElementById("movieTitle").innerHTML = data.original_title;
+
+          loadCollectionsModal(movieId).then(function (collectionData) {
+            var modalHTML = "<div class='row'><div class='col-sm-5'><img class='img-fluid' src='https://image.tmdb.org/t/p/w500" + img + "' alt='" + data.original_title + "'></div><div class='col-sm-7'><h4 class='mb-0 text-secondary font-weight-bold'>" + data.original_title + "</h4><p class='mb-2 text-muted'>" + data.tagline + "</p><div>Release Date: <strong>" + data.release_date + "</strong></div><p><strong>Overview: </strong>" + data.overview + "</p><h5 class='font-weight-bold'>Add/Remove movie</h5><div class='row'>" + collectionData + "</div></div>";
+            document.getElementById("movieDetails").innerHTML = modalHTML;
+          });
+
+        }
+      };
+      xhttp.open("GET", url, true);
+      xhttp.send();
+    }
+
+
+    //pagination
+    function pagination(numPages, currentPage) {
+      var numPages = numPages;
+      var defaultNumPages = 10;
+      var pagenitationHTML = "<nav aria-label='pagination example'><ul class='pagination pg-blue justify-content-center'>";
+      if (currentPage != 1) {
+        pagenitationHTML += "<li class='page-item'><a class='page-link' href='#' aria-label='Previous'><span aria-hidden='true'>&laquo;</span><span class='sr-only'>Previous</span></a></li>";
+      }
+      if (defaultNumPages < numPages) {
+        numPages = defaultNumPages;
+      }
+      for (var i = 1; i <= numPages; i++) {
+        var activeClass = "";
+        if (i == currentPage) {
+          activeClass = "active"
+        }
+        pagenitationHTML += "<li class='page-item " + activeClass + "'><a class='page-link' href='#' onclick='pagaData(" + i + ")'>" + i + "</a></li>"
+      }
+
+      if (currentPage != numPages) {
+        pagenitationHTML += "<li class='page-item'><a class='page-link' href='#' aria-label='Next'><span aria-hidden='true'>&raquo;</span><span class='sr-only'>Next</span></a></li>";
+      }
+
+      pagenitationHTML += "</ul></nav>";
+      document.getElementById("pagination").innerHTML = pagenitationHTML;
+    }
+
+    function pagaData(pageNumber) {
+      getData("popular", 8);
+    }
+
+    function createCollection() {
+      var collectionName = document.getElementById("collectionName").value;
+      if (collectionName === "") {
+        document.getElementById("collectionError").innerHTML = "Please enter collection name.";
+        document.getElementById("collectionName").focus();
+      } else {
+        document.getElementById("collectionError").innerHTML = "";
+        createJSONCollection(collectionName);
+        document.getElementById("collectionName").value = "";
+      }
+    }
+
+    var serverURL = "http://localhost:3000/collections/"
+
+    function createJSONCollection(collectionName) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("POST", serverURL, true);
+      xhttp.setRequestHeader("Content-Type", "application/json");
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 201) {
+          // console.log("Collection Created");
+          getCollectionData();
+        }
+      };
+      var data = JSON.stringify({ "name": collectionName, "movies": [] });
+      xhttp.send(data);
+    }
+
+    function loadCollectionsModal(movieId) {
+      return new Promise(function (resolve, reject) {
+        var xhttp = new XMLHttpRequest();
+        var collectionHTML = "";
+        xhttp.onreadystatechange = function () {
+          if (this.readyState == 4 && this.status == 200) {
+            var data = JSON.parse(this.responseText);
+            for (var i = 0; i < data.length; i++) {
+              // " + data[i].name + "
+              collectionHTML += "<div class='col-sm-6'><div class='border p-1 mb-1'><div class='custom-control custom-checkbox'><input type='checkbox' onclick='addMovieToCollection(" + data[i].id + "," + movieId + ")' class='custom-control-input' id='collection" + data[i].id + "'";
+              var index = data[i].movies.indexOf(movieId);
+              if (index > -1) {
+                collectionHTML += "checked";
+              }
+              collectionHTML += "><label class='custom-control-label' for='collection" + data[i].id + "'>" + data[i].name + "</label></div></div></div>"
+            }
+            resolve(collectionHTML)
+          }
+        };
+        xhttp.open("GET", serverURL, true);
+        xhttp.send();
+      })
+    }
+
+    function addMovieToCollection(collectionId, movieId) {
+      var checkBox = document.getElementById("collection" + collectionId);
+      if (checkBox.checked == true) {
+        addMovie(collectionId, movieId);
+      } else {
+        removeMovie(collectionId, movieId);
+      }
+    }
+
+    function addMovie(collectionId, movieId) {
+      getMoviesList(collectionId).then(function (movieList) {
+        var movieList = movieList;
+        var url = serverURL + collectionId;
+        movieList.push(movieId);
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("PATCH", url, true);
+        xhttp.setRequestHeader("Content-Type", "application/json");
+        xhttp.onreadystatechange = function () {
+          if (this.readyState == 4 && this.status == 200) {
+            console.log("Added movie to collection");
+            getCollectionData();
+          }
+        };
+        var data = JSON.stringify({ "movies": movieList });
+        xhttp.send(data);
+      });
+    }
+
+    function getMoviesList(collectionId) {
+      return new Promise(function (resolve, reject) {
+        var url = serverURL + collectionId;
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+          if (this.readyState == 4 && this.status == 200) {
+            var data = JSON.parse(this.responseText);
+            resolve(data.movies);
+          }
+        };
+        xhttp.open("GET", url, true);
+        xhttp.send();
+      });
+    }
+
+    function removeMovie(collectionId, movieId) {
+      getMoviesList(collectionId).then(function (movieList) {
+        var movieList = movieList;
+        var url = serverURL + collectionId;
+        var index = movieList.indexOf(movieId);
+        if (index > -1) {
+          movieList.splice(index, 1);
+        }
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("PATCH", url, true);
+        xhttp.setRequestHeader("Content-Type", "application/json");
+        xhttp.onreadystatechange = function () {
+          if (this.readyState == 4 && this.status == 200) {
+            console.log("Removed movie to collection");
+            getCollectionData();
+          }
+        };
+        var data = JSON.stringify({ "movies": movieList });
+        xhttp.send(data);
+      });
+      
+    }
+
+    function loadCollections() {
+      var xhttp = new XMLHttpRequest();
+      var collectionHTML = "";
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          var data = JSON.parse(this.responseText);
+          for (var i = 0; i < data.length; i++) {
+            collectionHTML += "<li class='list-group-item p-2'>" + data[i].name + " <small><a href='#collectionWrapper"+data[i].id+"'>View</a></small><button class='btn btn-sm btn-danger m-0 float-right' onclick='removeCollection(" + data[i].id + ")'>Remove</button></li>"
+          }
+          document.getElementById("myCollectionList").innerHTML = collectionHTML;
+        }
+      };
+      xhttp.open("GET", serverURL, true);
+      xhttp.send();
+    }
+
+    function removeCollection(collectionID) {
+      var url = serverURL + collectionID;
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          loadCollections();
+          getCollectionData();
+        }
+      };
+      xhttp.open("DELETE", url, true);
+      xhttp.send();
+    }
+
+    function getCollectionData() {
+      var xhttp = new XMLHttpRequest();
+      var collectionResultsHTML = "";
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          var data = JSON.parse(this.responseText);
+          for (var i = 0; i < data.length; i++) {
+            collectionResultsHTML += "<div class='card mt-3'><div class='card-header deep-orange lighten-1 py-2 px-2 white-text'>" + data[i].name + "</div><div class='card-body px-2 pt-2 pb-0'><div class='row' id='collectionWrapper" + data[i].id + "'></div></div></div>";
+            getMovies(data[i].movies, data[i].id).then(function (moviesData){
+              console.log("Hello");
+            });
+          }
+          document.getElementById("collectionResults").innerHTML = collectionResultsHTML;
+        }
+      };
+      xhttp.open("GET", serverURL, true);
+      xhttp.send();
+    }
+
+    function getMovies(movies, collectionID) {
+      return new Promise(function (resolve, reject) {
+        var divID = "collectionWrapper"+collectionID;
+        
+        let a = [];
+        for (var j = 0; j < movies.length; j++) {
+          a.push(getCollectionMovie(movies[j]));
+          console.log(movies[j]);
+        }
+        Promise.all(a).then(function (moviesData) {
+          var movieHTML = "";
+          for (k = 0; k < moviesData.length; k++) {
+            movieHTML += moviesData[k];
+          }
+          document.getElementById(divID).innerHTML = movieHTML;
+        });
+      });
+    }
+
+    function getCollectionMovie(movieID) {
+      var url = "https://api.themoviedb.org/3/movie/" + movieID + "?api_key=289e84f4fe34381b97017830c61a59c7";
+      var responseHTML = ""
+      return new Promise(function (resolve, reject) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+          if (this.readyState == 4 && this.status == 200) {
+            var data = JSON.parse(this.responseText);
+            var img = data.poster_path;
+            var imgPath = "";
+            if (img == null) {
+              imgPath = "http://via.placeholder.com/300x450/cccccc/000000?text=No%20Picture";
+            } else {
+              imgPath = "https://image.tmdb.org/t/p/w300/" + img;
+            }
+            responseHTML += "<div class='col-md-3 mb-2 col-lg-3'><div class='card'>" +
+              "<div class='view overlay'><img class='card-img-top' src='https://image.tmdb.org/t/p/w300/" + img + "' alt='" + data.title + "'><a href='' data-toggle='modal' data-target='#movieModal' onclick=openMovie(" + data.id + ")><div class='mask rgba-white-slight'></div></a></div>" +
+              "<div class='card-body px-2 py-2'><h6 class='card-title ellipsis-text mb-0' title='" + data.original_title + "'>" + data.original_title + "</h6></div>" +
+              "</div></div>";
+            resolve(responseHTML)
+          }
+        };
+        xhttp.open("GET", url, true);
+        xhttp.send();
+      });
+    }
+
+    getCollectionData();
+
+  </script>
+</body>
+
+</html>
