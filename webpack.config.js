@@ -85,7 +85,7 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       template: 'src/index.html',
-      inject: 'head'
+      inject: 'body'
     }),
     new CleanWebpackPlugin(['dist']),
   ],
