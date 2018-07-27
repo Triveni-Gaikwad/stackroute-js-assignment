@@ -13,13 +13,13 @@ export let getMovieService = (queryString, divID, searchKeyword) => {
   } else if (queryString === 'search') {
     link = `${searchMovieUrl}&query=${searchKeyword}`;
   }
-  xhttp.onreadystatechange = function () {
-    if (this.readyState === 4 && this.status === 200) {
+  xhttp.onreadystatechange = () => {
+    if (xhttp.readyState === 4 && xhttp.status === 200) {
       if (queryString === 'search') {
         searchStore.dispatch({ type: 'SEARCH MOVIE', searchKeyword: searchKeyword });
         console.log(searchStore.getState());
       }
-      const fetchedData = JSON.parse(this.responseText);
+      const fetchedData = JSON.parse(xhttp.responseText);
       const results = fetchedData.results;
       for (const movie of results) {
         if (queryString === 'popular') {

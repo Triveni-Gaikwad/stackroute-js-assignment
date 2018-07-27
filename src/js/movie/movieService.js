@@ -25,9 +25,10 @@ let getCollectionMovie = (movieID) => {
     const url = `https://api.themoviedb.org/3/movie/${movieID}?api_key=289e84f4fe34381b97017830c61a59c7`;
     return new Promise(((resolve, reject) => {
         const xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState === 4 && this.status === 200) {
-                const data = JSON.parse(this.responseText);
+
+        xhttp.onreadystatechange = () => {
+            if (xhttp.readyState === 4 && xhttp.status === 200) {
+                const data = JSON.parse(xhttp.responseText);
                 resolve(createMovieCard(data));
             }
         };
@@ -39,9 +40,9 @@ let getCollectionMovie = (movieID) => {
 window.openMovie = (movieID) => {
     const url = `https://api.themoviedb.org/3/movie/${movieID}?api_key=${key}`;
     const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState === 4 && this.status === 200) {
-            const data = JSON.parse(this.responseText);
+    xhttp.onreadystatechange = () => {
+        if (xhttp.readyState === 4 && xhttp.status === 200) {
+            const data = JSON.parse(xhttp.responseText);
             document.getElementById('movieTitle').innerHTML = data.original_title;
             loadCollectionsModal(movieID).then((collectionData) => {
                 const modalHTML = `<div class='row'><div class='col-sm-5'><img class='img-fluid' src='https://image.tmdb.org/t/p/w500${data.poster_path}' alt='${data.original_title}'></div><div class='col-sm-7'><h4 class='mb-0 text-secondary font-weight-bold'>${data.original_title}</h4><p class='mb-2 text-muted'>${data.tagline}</p><div>Release Date: <strong>${data.release_date}</strong></div><p><strong>Overview: </strong>${data.overview}</p><h5 class='font-weight-bold'>Add/Remove movie</h5><div class='row'>${collectionData}</div></div>`;
@@ -62,8 +63,8 @@ export let addMovie = (collectionId, movieId) => {
         const xhttp = new XMLHttpRequest();
         xhttp.open('PATCH', url, true);
         xhttp.setRequestHeader('Content-Type', 'application/json');
-        xhttp.onreadystatechange = function() {
-            if (this.readyState === 4 && this.status === 200) {
+        xhttp.onreadystatechange =  () => {
+            if (xhttp.readyState === 4 && xhttp.status === 200) {
                 getCollectionData();
             }
         };
@@ -83,8 +84,8 @@ export let removeMovie = (collectionId, movieId) => {
         const xhttp = new XMLHttpRequest();
         xhttp.open('PATCH', url, true);
         xhttp.setRequestHeader('Content-Type', 'application/json');
-        xhttp.onreadystatechange = function() {
-            if (this.readyState === 4 && this.status === 200) {
+        xhttp.onreadystatechange =  () => {
+            if (xhttp.readyState === 4 && xhttp.status === 200) {
                 getCollectionData();
             }
         };
@@ -97,9 +98,9 @@ let getMoviesList = (collectionId) => {
     return new Promise(((resolve, reject) => {
         const url = serverURL + collectionId;
         const xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState === 4 && this.status === 200) {
-                const data = JSON.parse(this.responseText);
+        xhttp.onreadystatechange =  () => {
+            if (xhttp.readyState === 4 && xhttp.status === 200) {
+                const data = JSON.parse(xhttp.responseText);
                 resolve(data.movies);
             }
         };

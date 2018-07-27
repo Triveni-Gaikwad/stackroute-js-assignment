@@ -12,8 +12,8 @@ export let saveCollection = (collectionName) => {
     const xhttp = new XMLHttpRequest();
     xhttp.open('POST', serverURL, true);
     xhttp.setRequestHeader('Content-Type', 'application/json');
-    xhttp.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 201) {
+    xhttp.onreadystatechange = () => {
+        if (xhttp.readyState === 4 && xhttp.status === 201) {
             store.dispatch({ type: 'CREATE COLLECTION', collectionName: collectionName });
             console.log(store.getState());
             getCollections();
@@ -28,8 +28,8 @@ export let saveCollection = (collectionName) => {
 export let removeCollection = (collectionID, collectionName) => {
     const url = serverURL + collectionID;
     const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 200) {
+    xhttp.onreadystatechange = () => {
+        if (xhttp.readyState === 4 && xhttp.status === 200) {
             store.dispatch({ type: 'DELETE COLLECTION', collectionName: collectionName });
             getCollections();
             getCollectionData();
@@ -43,9 +43,9 @@ export let removeCollection = (collectionID, collectionName) => {
 export let getCollectionData = () => {
     const xhttp = new XMLHttpRequest();
     let collectionResultsHTML = '';
-    xhttp.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 200) {
-            const data = JSON.parse(this.responseText);
+    xhttp.onreadystatechange = () => {
+        if (xhttp.readyState === 4 && xhttp.status === 200) {
+            const data = JSON.parse(xhttp.responseText);
             for (let i = 0; i < data.length; i++) {
                 collectionResultsHTML += `<div class='card mt-3'><div class='card-header deep-orange lighten-1 py-2 px-2 white-text'>${data[i].name}</div><div class='card-body px-2 pt-2 pb-0'><div class='row' id='collectionWrapper${data[i].id}'></div></div></div>`;
                 getMovies(data[i].movies, data[i].id).then((moviesData) => {
@@ -63,9 +63,9 @@ export let loadCollectionsModal = (movieId) => {
     return new Promise(((resolve, reject) => {
         const xhttp = new XMLHttpRequest();
         let collectionHTML = '';
-        xhttp.onreadystatechange = function () {
-            if (this.readyState === 4 && this.status === 200) {
-                const data = JSON.parse(this.responseText);
+        xhttp.onreadystatechange = () => {
+            if (xhttp.readyState === 4 && xhttp.status === 200) {
+                const data = JSON.parse(xhttp.responseText);
                 for (let i = 0; i < data.length; i++) {
                     collectionHTML += `<div class='col-sm-6'><div class='border p-1 mb-1'><div class='custom-control custom-checkbox'><input type='checkbox' onclick='addRemoveMovieToCollection(${data[i].id},${movieId})' class='custom-control-input' id='collection${data[i].id}'`;
                     const index = data[i].movies.indexOf(movieId);
@@ -86,9 +86,9 @@ export let loadCollections = () => {
     return new Promise(((resolve, reject) => {
         const xhttp = new XMLHttpRequest();
         let collectionHTML = '';
-        xhttp.onreadystatechange = function () {
-            if (this.readyState === 4 && this.status === 200) {
-                const data = JSON.parse(this.responseText);
+        xhttp.onreadystatechange = () => {
+            if (xhttp.readyState === 4 && xhttp.status === 200) {
+                const data = JSON.parse(xhttp.responseText);
                 for (const collection of data) {
                     collectionHTML += `<li class='list-group-item p-2'>${collection.name} <small><a href='#collectionWrapper${collection.id}' class="collection-view">View</a></small><button class='btn btn-sm btn-danger m-0 float-right remove-collection' data-col-name="${collection.name}" data-id="${collection.id}">Remove</button></li>`;
                 }
