@@ -12,29 +12,28 @@ export let saveCollection = (collectionName) => {
     const xhttp = new XMLHttpRequest();
     xhttp.open('POST', serverURL, true);
     xhttp.setRequestHeader('Content-Type', 'application/json');
-    xhttp.onreadystatechange = function() {
+    xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 201) {
+            store.dispatch({ type: 'CREATE COLLECTION', collectionName: collectionName });
             console.log(store.getState());
-            store.subscribe(() => {
-                getCollections();
-                getCollectionData();
-            })
+            getCollections();
+            getCollectionData();
         }
+
     };
     const data = JSON.stringify({ name: collectionName, movies: [] });
     xhttp.send(data);
 }
 
-export let removeCollection = (collectionID) => {
+export let removeCollection = (collectionID, collectionName) => {
     const url = serverURL + collectionID;
     const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
+    xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
+            store.dispatch({ type: 'DELETE COLLECTION', collectionName: collectionName });
+            getCollections();
+            getCollectionData();
             console.log(store.getState());
-            store.subscribe(() => {
-                getCollections();
-                getCollectionData();
-            })
         }
     };
     xhttp.open('DELETE', url, true);
@@ -44,7 +43,7 @@ export let removeCollection = (collectionID) => {
 export let getCollectionData = () => {
     const xhttp = new XMLHttpRequest();
     let collectionResultsHTML = '';
-    xhttp.onreadystatechange = function() {
+    xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
             const data = JSON.parse(this.responseText);
             for (let i = 0; i < data.length; i++) {
@@ -64,7 +63,7 @@ export let loadCollectionsModal = (movieId) => {
     return new Promise(((resolve, reject) => {
         const xhttp = new XMLHttpRequest();
         let collectionHTML = '';
-        xhttp.onreadystatechange = function() {
+        xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
                 const data = JSON.parse(this.responseText);
                 for (let i = 0; i < data.length; i++) {
@@ -87,7 +86,7 @@ export let loadCollections = () => {
     return new Promise(((resolve, reject) => {
         const xhttp = new XMLHttpRequest();
         let collectionHTML = '';
-        xhttp.onreadystatechange = function()  {
+        xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
                 const data = JSON.parse(this.responseText);
                 for (const collection of data) {

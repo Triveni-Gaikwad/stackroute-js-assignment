@@ -1,4 +1,3 @@
-import { store } from '../stateManagement';
 import { getCollections, removeCollection, saveCollection, getCollectionData } from './collectionService';
 
 let createCollection = ()  =>  {
@@ -8,7 +7,6 @@ let createCollection = ()  =>  {
         $('#collectionName').focus();
     } else {
         $('#collectionError').html('');
-        store.dispatch({ type: 'CREATE COLLECTION', collectionName: collectionName });
         saveCollection(collectionName);
         $('#collectionName').val('');
         $('#createCollection').modal('hide');
@@ -18,8 +16,7 @@ let createCollection = ()  =>  {
 $(document).on('click', '.remove-collection', function (event) {
     const collectionID = $(this).data('id');
     const collectionName = $(this).data('col-name');
-    store.dispatch({ type: 'DELETE COLLECTION', collectionName: collectionName });
-    removeCollection(collectionID);
+    removeCollection(collectionID, collectionName);
 });
 
 $(document).on('click', '.collection-view', function (event) {
