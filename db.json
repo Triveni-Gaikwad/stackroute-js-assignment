@@ -1,3 +1,25 @@
 {
-  "collections": []
+  "collections": [
+    {
+      "name": "Fav",
+      "movies": [
+        21210,
+        393445
+      ],
+      "id": 1
+    },
+    {
+      "name": "Comedy",
+      "movies": [
+        262,
+        84187
+      ],
+      "id": 2
+    },
+    {
+      "name": "aaaa",
+      "movies": [],
+      "id": 3
+    }
+  ]
 }
